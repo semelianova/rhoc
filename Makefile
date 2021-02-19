@@ -4,7 +4,7 @@ GOARCH = $(shell go env GOARCH)
 PKG_DIR = $(CURDIR)/package-$(GOOS)-$(GOARCH)
 TOOLS_DIR = $(PKG_DIR)/tools
 # NOTE: variable GIT_HASH should not contain spaces or quotes or build will fail
-GIT_HASH = $(shell git describe --tags)
+GIT_HASH = $(shell git rev-parse --short 7)
 ARC_FILE = package-$(GOOS)-$(GOARCH)-$(GIT_HASH).tar.gz
 ARC_LITE = lite-$(GOOS)-$(GOARCH)-$(GIT_HASH).tar.gz
 

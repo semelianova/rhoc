@@ -1,0 +1,45 @@
+name: Rhoc Deploy
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  deploy:
+    name: Deploy
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, windows-latest, macos-latest]
+    runs-on: ${{matrix.os}}
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Build package
+      run: make
+    
+    - name: Create release
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/create-release@v1.0.0
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    
+    - name: Upload
+      uses: actions/upload-release-asset@v1.0.1
+      with:
+        upload_url: $ {{ steps.create_release.outputs.upload_url }}
+        asset_path: ./package-${{ runner.os }}-amd64-${{ github.ref }}.tar.gz
+        asset_name: package-${{ runner.os }}-amd64-${{ github.ref }}.tar.gz
+        asset_content_type: application/zip
